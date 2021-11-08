@@ -2,7 +2,7 @@ import code
 import os
 import skimage
 from skimage import io
-
+from scipy import fftpack
 
 # Here is the link to the article I read, also see pwr_exp.py for what is done in the article
 # https://bertvandenbroucke.netlify.app/2019/05/24/computing-a-power-spectrum-in-python/
@@ -27,17 +27,92 @@ i4 = io.imread('cell_images/cell_images/0001.004.png')
 i5 = io.imread('cell_images/cell_images/0001.005.png')
 i6 = io.imread('cell_images/cell_images/0001.006.png')
 
-gs_kern = 
+#F1 = np.real(np.fft.fft2(i0))
 
+#g_img = fftpack.ifftshift(gs2(0,1, np.shape(i0)[0], np.shape(i0)[0]))
+#F1_filt = np.multiply(g_img,F1)
+#i0_orig = np.real(np.fft.ifft2(F1))
+#i0_filt = np.real(fftpack.ifftshift(np.fft.ifft2(F1_filt)))
+g_filt = gs2(0,.02, np.shape(i0)[0], np.shape(i0)[0])
+g_img = fftpack.ifftshift(gs2(0,.2, np.shape(i0)[0], np.shape(i0)[0]))
+F1 = np.fft.fft2(i0)
+F1_log = np.real(np.log(fftpack.ifftshift(np.fft.fft2(i0))))
+F1_filt = F1*g_img
+i0_filt = np.real(np.fft.ifft2(F1_filt))
+
+plt.subplot(3,2,1)
+plt.title('i0')
+plt.imshow(i0, cmap='gray')
+plt.subplot(3,2,2)
+plt.title('F1_log')
+plt.imshow(F1_log, cmap='gray')
+plt.subplot(3,2,3)
+plt.title('g_img')
+plt.imshow(g_filt, cmap='gray')
+plt.subplot(3,2,4)
+plt.title('i0_filt')
+plt.imshow(i0_filt, cmap='gray')
+plt.show()
+
+exit()
+
+filt = lo_p(np.shape(i0)[0], 300)
+
+F1 = np.fft.fft2(i0)
+F1_filt = np.multiply(F1, filt)
+F1_mag = np.abs(F1)
+F1_mag_filt = np.abs(F1_filt)
+iF1 = np.real(np.fft.ifft2(F1))
+iF1_filt = np.real(np.fft.ifft2(F1_filt))
+#iF1 = 0.5*iF1
+#iF1[iF1 > 255] = 255
+
+plt.subplot(3,2,1)
+
+plt.title('i0')
+plt.imshow(i0, cmap='gray')
+plt.subplot(3,2,2)
+plt.title('F1_mag')
+plt.imshow(np.log(F1_mag), cmap='gray')
+plt.subplot(3,2,3)
+plt.title('F1_mag_filt')
+plt.imshow(np.log(F1_mag_filt), cmap='gray')
+plt.subplot(3,2,4)
+plt.title('iF1')
+plt.imshow(iF1, cmap='gray')
+plt.subplot(3,2,5)
+plt.title('iF1_filt')                      
+plt.imshow(iF1_filt, cmap='gray')
+plt.show()
+exit()
+
+filt_len1 = np.shape(i0)[0]
+filt_ones = np.ones((filt_len1,filt_len1))
 F_i0_orig = np.fft.fft2(i0)
 F_i0 = abs(np.fft.fft2(i0))
 F_i0_pwr = np.log(F_i0**2)
 x_len1 = np.shape(i0)[0]
 y_len1 = np.shape(i0)[1]
-lo_filt = lo_p(x_len1, 128)
+lo_filt = .02*filt_ones
+#lo_filt = lo_p(x_len1, 128)
 F_i0_filt = np.multiply(F_i0_orig, lo_filt)
+#F_i0_pwr_filt = np.log(abs(F_i0_filt)**2)
 F_i0_pwr_filt = np.log(abs(F_i0_filt)**2)
 i0_filt = np.fft.ifft(F_i0_filt)
+
+
+
+#F_i0_orig = np.fft.fft2(i0)
+#F_i0 = abs(np.fft.fft2(i0))
+#F_i0_pwr = np.log(F_i0**2)
+#x_len1 = np.shape(i0)[0]
+#y_len1 = np.shape(i0)[1]
+#lo_filt = lo_p(x_len1, 128)
+#F_i0_filt = np.multiply(F_i0_orig, lo_filt)
+#F_i0_pwr_filt = np.log(abs(F_i0_filt)**2)
+#i0_filt = np.fft.ifft(F_i0_filt)
+
+
 
 
 plt.subplot(3,2,1)

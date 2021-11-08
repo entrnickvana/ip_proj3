@@ -24,6 +24,45 @@ def fft_convolve2d(x,y):
     cc = np.roll(cc, -n/2+1,axis=1)
     return cc
 
+def nrm_test(dim, mu, sgm):
+    mean = 0; std = 1; variance = np.square(std);
+    x = np.arange(-5,4,.01)
+    f = np.exp(-np.square(x-mean)/2*variance)/(np.sqrt(2*np.pi*variance))
+
+    plt.plot(x,f)
+    plt.ylabel('gaussian')
+    plt.show()
+    
+def gs2_proto(muu, sg):
+    x, y = np.meshgrid(np.linspace(-1,1,10), np.linspace(-1,1,10))
+    z = np.sqrt(x*x+y*y)
+    sigma = 1
+    muu = 0.00
+    gauss1 = np.exp(-1*((z-muu)**2 / (2.0 * sg**2)))
+    return gauss1
+
+def gs2(muu, sg, w, h):
+    w_half = np.int(w/2)
+    h_half = np.int(h/2)
+    x, y = np.meshgrid(np.linspace(-1,1,w), np.linspace(-1,1,h))
+    z = np.sqrt(x*x+y*y)
+    sigma = 1
+    muu = 0.00
+    gauss1 = np.exp(-1*((z-muu)**2 / (2.0 * sg**2)))
+    return gauss1
+
+
+def three_d(img):
+    #ax = plt.axes(projection='3d')
+    #zline = np.linspace(0, 15, 1000)
+    #xline = np.sin(zline)
+    #yline = np.cos(zline)
+    #ax.plot3D(xline, yline, zline, 'gray')
+    #plt.show()
+
+    ax = plt.axes(projection='3d')
+    zline = linspace(0,255)
+
 def delta1(dim):
     #len1 = np.shape(img)[0]
     len1 = dim
