@@ -27,32 +27,72 @@ i4 = io.imread('cell_images/cell_images/0001.004.png')
 i5 = io.imread('cell_images/cell_images/0001.005.png')
 i6 = io.imread('cell_images/cell_images/0001.006.png')
 
+#np.shape(i0)
+#np.shape(i1)
+#max_len_y = 2*max([np.shape(i0)[0], np.shape(i1)[0]])
+#max_len_x = 2*max([np.shape(i0)[1], np.shape(i1)[1]])
+#canvas = np.zeros((max_len_y, max_len_x))
+#canvas[0:np.int(max_len_x/2), 0:np.int(max_len_y/2)] = i1
+#canvas[375:375+np.int(max_len_y/2) ,507:507+np.int(max_len_x/2)] = i0
+##canvas[0:np.int(max_len_x/2), 0:np.int(max_len_y/2)] = i0
+##canvas[np.int(max_len_x/2):2*np.int(max_len_x/2), np.int(max_len_y/2):2*np.int(max_len_y/2)] = i0
+#
+#code.interact(local=locals())
+#exit()
+
+#lo_pass_btrw_print(clouds, .2, 3)
+F = np.fft.fft2(i0)
+F_conj = F.conj()
+G = np.fft.fft2(i1)
+numer = F_conj*G
+denom = np.abs(numer)
+P = numer/denom
+f_corr = np.abs(np.fft.ifft2(P))
+#plt.subplot(2,2,1)
+#plt.imshow(i0, cmap='gray')
+#plt.subplot(2,2,2)
+#plt.imshow(i1, cmap='gray')
+#plt.subplot(2,2,3)
+plt.imshow(f_corr, cmap='gray')
+plt.savefig('f_corr.png')
+plt.show()
+
+exit()
+
+i0_filt = lo_pass_gauss(i0, 0, 0.1, np.shape(i0)[0], np.shape(i0)[1])
+
+plt.subplot(2,1,1)
+plt.imshow(i0, cmap='gray')
+plt.subplot(2,1,2)
+plt.imshow(i0_filt, cmap='gray')
+plt.show()
+
 #F1 = np.real(np.fft.fft2(i0))
 
 #g_img = fftpack.ifftshift(gs2(0,1, np.shape(i0)[0], np.shape(i0)[0]))
 #F1_filt = np.multiply(g_img,F1)
 #i0_orig = np.real(np.fft.ifft2(F1))
 #i0_filt = np.real(fftpack.ifftshift(np.fft.ifft2(F1_filt)))
-g_filt = gs2(0,.02, np.shape(i0)[0], np.shape(i0)[0])
-g_img = fftpack.ifftshift(gs2(0,.2, np.shape(i0)[0], np.shape(i0)[0]))
-F1 = np.fft.fft2(i0)
-F1_log = np.real(np.log(fftpack.ifftshift(np.fft.fft2(i0))))
-F1_filt = F1*g_img
-i0_filt = np.real(np.fft.ifft2(F1_filt))
-
-plt.subplot(3,2,1)
-plt.title('i0')
-plt.imshow(i0, cmap='gray')
-plt.subplot(3,2,2)
-plt.title('F1_log')
-plt.imshow(F1_log, cmap='gray')
-plt.subplot(3,2,3)
-plt.title('g_img')
-plt.imshow(g_filt, cmap='gray')
-plt.subplot(3,2,4)
-plt.title('i0_filt')
-plt.imshow(i0_filt, cmap='gray')
-plt.show()
+#g_filt = gs2(0,.02, np.shape(i0)[0], np.shape(i0)[0])
+#g_img = fftpack.ifftshift(gs2(0,.2, np.shape(i0)[0], np.shape(i0)[0]))
+#F1 = np.fft.fft2(i0)
+#F1_log = np.real(np.log(fftpack.ifftshift(np.fft.fft2(i0))))
+#F1_filt = F1*g_img
+#i0_filt = np.real(np.fft.ifft2(F1_filt))
+#
+#plt.subplot(3,2,1)
+#plt.title('i0')
+#plt.imshow(i0, cmap='gray')
+#plt.subplot(3,2,2)
+#plt.title('F1_log')
+#plt.imshow(F1_log, cmap='gray')
+#plt.subplot(3,2,3)
+#plt.title('g_img')
+#plt.imshow(g_filt, cmap='gray')
+#plt.subplot(3,2,4)
+#plt.title('i0_filt')
+#plt.imshow(i0_filt, cmap='gray')
+#plt.show()
 
 exit()
 

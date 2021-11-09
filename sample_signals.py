@@ -12,7 +12,7 @@ from skimage.segmentation import flood, flood_fill
 from skimage.morphology import extrema
 from skimage.exposure import histogram
 from numpy.fft import fft2, ifft2
-
+from scipy import fftpack
 
 def fft_convolve2d(x,y):
     """ 2D convolution, using FFT"""
@@ -41,16 +41,79 @@ def gs2_proto(muu, sg):
     gauss1 = np.exp(-1*((z-muu)**2 / (2.0 * sg**2)))
     return gauss1
 
+def btrw(w, h, cutoff, order):
+    w_half = np.int(w/2)
+    h_half = np.int(h/2)
+    x, y = np.meshgrid(np.linspace(-1,1,w), np.linspace(-1,1,h))
+    z = np.sqrt(x*x + y*y)
+    butter = 1/(1 + (z/cutoff)**(2*order))
+    return butter
+
+def lo_pass_btrw(img, cutoff, order):
+    FILT = fftpack.ifftshift(btrw(np.shape(img)[0], np.shape(img)[1], cutoff, order))
+    I = np.fft.fft2(img)
+    IMG_FILT = I*FILT
+    img_filt = np.real(np.fft.ifft2(IMG_FILT))
+    return img_filt, FILT, I, IMG_FILT
+
+def lo_pass_btrw_print(img, cutoff, order):
+    FILT = fftpack.ifftshift(btrw(np.shape(img)[0], np.shape(img)[1], cutoff, order))
+    I = np.fft.fft2(img)
+    IMG_FILT = I*FILT
+    img_filt = np.real(np.fft.ifft2(IMG_FILT))
+    plt_flt(img, FILT, I, IMG_FILT, img_filt)
+
+def plt_flt(img, FILT, I, IMG_FILT, img_filt):
+    plt.subplot(2,3,1)
+    plt.title('Input Image')
+    plt.imshow(img, cmap='gray')
+    plt.subplot(2,3,2)
+    plt.title('FFT image (Magnitude Logscale)')    
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(I))), cmap='gray')
+    plt.subplot(2,3,3)
+    plt.title('Centered Filter (Magnitude Logscale)')    
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(FILT))), cmap='gray')
+    plt.subplot(2,3,4)
+    plt.title('Fourier Domain Filtered Image (Magnitude Logscale)')        
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(IMG_FILT))), cmap='gray')
+    plt.subplot(2,3,5)
+    plt.title('Filtered Output Image')            
+    plt.imshow(img_filt, cmap='gray')
+    plt.show()
+    
 def gs2(muu, sg, w, h):
     w_half = np.int(w/2)
     h_half = np.int(h/2)
     x, y = np.meshgrid(np.linspace(-1,1,w), np.linspace(-1,1,h))
-    z = np.sqrt(x*x+y*y)
+    z = np.sqrt(x*x + y*y)
     sigma = 1
-    muu = 0.00
     gauss1 = np.exp(-1*((z-muu)**2 / (2.0 * sg**2)))
     return gauss1
 
+#def lo_pass_gauss(img, muu, sg, w, h):
+#    #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
+#    #match fourier tranforms of images
+#    FILT = fftpack.ifftshift(gs2(muu, sg, np.shape(img)[0], np.shape(img)[1]))
+#    I = np.fft.fft2(img)
+#    IMG_FILT = I*FILT
+#    return np.real(np.fft.ifft2(IMG_FILT))
+
+def lo_pass_gauss(img, muu, sg, w, h):
+    #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
+    #match fourier tranforms of images
+    FILT = fftpack.ifftshift(gs2(muu, sg, np.shape(img)[0], np.shape(img)[1]))
+    I = np.fft.fft2(img)
+    IMG_FILT = I*FILT
+    img_filt = np.real(np.fft.ifft2(IMG_FILT))
+    return img_filt, FILT, I, IMG_FILT
+
+def lo_pass_(img, muu, sg, w, h):
+    #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
+    #match fourier tranforms of images
+    FILT = fftpack.ifftshift(gs2(muu, sg, np.shape(img)[0], np.shape(img)[1]))
+    I = np.fft.fft2(img)
+    IMG_FILT = I*FILT
+    return np.real(np.fft.ifft2(IMG_FILT))
 
 def three_d(img):
     #ax = plt.axes(projection='3d')
