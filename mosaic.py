@@ -27,18 +27,41 @@ i4 = io.imread('cell_images/cell_images/0001.004.png')
 i5 = io.imread('cell_images/cell_images/0001.005.png')
 i6 = io.imread('cell_images/cell_images/0001.006.png')
 
+img_arr=[i0, i1, i2, i4, i5, i6]
+
+
+for ii in range(0, len(img_arr)):  
+  # plot ideal
+  img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
+  p_filt, ORIG_FILT, P, F, G = gen_corr_filt(i0, img_arr[ii], FILT)
+  print_gen_corr(i0, img_arr[ii], p_filt, FILT, P, F, G )
+
+code.interact(local=locals())
+
+freq1 = np.log(np.abs(np.fft.fft2(delta1(510))))
+plt.imshow(freq1, cmap='gray')
+plt.show()
+
+exit()
+
+
+# filter ideal
+# 
+
+
 #np.shape(i0)
 #np.shape(i1)
 #max_len_y = 2*max([np.shape(i0)[0], np.shape(i1)[0]])
 #max_len_x = 2*max([np.shape(i0)[1], np.shape(i1)[1]])
 #canvas = np.zeros((max_len_y, max_len_x))
 #canvas[0:np.int(max_len_x/2), 0:np.int(max_len_y/2)] = i1
-#canvas[375:375+np.int(max_len_y/2) ,507:507+np.int(max_len_x/2)] = i0
+#canvas[375:375+np.int(max_len_y/2), 0:np.int(max_len_x/2)] = i0
 ##canvas[0:np.int(max_len_x/2), 0:np.int(max_len_y/2)] = i0
 ##canvas[np.int(max_len_x/2):2*np.int(max_len_x/2), np.int(max_len_y/2):2*np.int(max_len_y/2)] = i0
 #
 #code.interact(local=locals())
 #exit()
+
 
 #lo_pass_btrw_print(clouds, .2, 3)
 F = np.fft.fft2(i0)
@@ -47,7 +70,11 @@ G = np.fft.fft2(i1)
 numer = F_conj*G
 denom = np.abs(numer)
 P = numer/denom
-f_corr = np.abs(np.fft.ifft2(P))
+#img_filt, FILT, I, IMG_FILT = lo_pass_btrw(P, 1, 1)
+img_filt, FILT, I, IMG_FILT = lo_pass_gauss(P, 0, 1, np.shape(P)[0], np.shape(P)[0])
+#code.interact(local=locals())
+#f_corr = np.abs(np.fft.ifft2(P))
+f_corr = np.abs(np.fft.ifft2(IMG_FILT))
 #plt.subplot(2,2,1)
 #plt.imshow(i0, cmap='gray')
 #plt.subplot(2,2,2)

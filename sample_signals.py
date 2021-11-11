@@ -55,6 +55,7 @@ def lo_pass_btrw(img, cutoff, order):
     IMG_FILT = I*FILT
     img_filt = np.real(np.fft.ifft2(IMG_FILT))
     return img_filt, FILT, I, IMG_FILT
+    #return img_filt, FILT, I, IMG_FILT
 
 def lo_pass_btrw_print(img, cutoff, order):
     FILT = fftpack.ifftshift(btrw(np.shape(img)[0], np.shape(img)[1], cutoff, order))
@@ -98,7 +99,7 @@ def gs2(muu, sg, w, h):
 #    IMG_FILT = I*FILT
 #    return np.real(np.fft.ifft2(IMG_FILT))
 
-def lo_pass_gauss(img, muu, sg, w, h):
+def lo_pass_gauss(img, muu, sg):
     #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
     #match fourier tranforms of images
     FILT = fftpack.ifftshift(gs2(muu, sg, np.shape(img)[0], np.shape(img)[1]))
@@ -106,6 +107,51 @@ def lo_pass_gauss(img, muu, sg, w, h):
     IMG_FILT = I*FILT
     img_filt = np.real(np.fft.ifft2(IMG_FILT))
     return img_filt, FILT, I, IMG_FILT
+
+def gen_corr(a, b):
+    F = np.fft.fft2(a)
+    F_conj = F.conj()
+    G = np.fft.fft2(b)
+    numer = F_conj*G
+    denom = np.abs(numer)
+    P = numer/denom
+    return P, F, G
+
+def gen_corr_filt(a, b, filt):
+    P, F, G = gen_corr(a, b)
+    p_filt = np.real(np.fft.ifft2(P*filt))
+    return p_filt, filt, P, F, G
+
+def print_gen_corr(img1, img2, p_filt, filt, P, F, G):
+    plt.subplot(2,4,1)
+    plt.title('img1')
+    plt.imshow(img1, cmap='gray')
+    
+    plt.subplot(2,4,2)
+    plt.title('img2')
+    plt.imshow(img2, cmap='gray')
+    
+    plt.subplot(2,4,3)
+    plt.title('filtered_corr')
+    plt.imshow(p_filt, cmap='gray')
+    
+    plt.subplot(2,4,4)
+    plt.title('filter (shifted)')
+    plt.imshow(fftpack.ifftshift(filt), cmap='gray')
+    
+    plt.subplot(2,4,5)
+    plt.title('Phase Correlation')
+    plt.imshow(np.real(P), cmap='gray')
+    
+    plt.subplot(2,4,6)
+    plt.title('F spectrum (Log)')
+    plt.imshow(np.log(np.abs(F)), cmap='gray')    
+    
+    plt.subplot(2,4,7)
+    plt.title('G spectrum (Log)')
+    plt.imshow(np.log(np.abs(G)), cmap='gray')
+    plt.show()
+    
 
 def lo_pass_(img, muu, sg, w, h):
     #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
@@ -133,6 +179,8 @@ def delta1(dim):
     img = np.zeros((dim, dim))
     img[cntr, cntr] = 1.0
     return img
+
+
 
 def lo_p(dim, wdth):
     #len1 = np.shape(img)[0]
