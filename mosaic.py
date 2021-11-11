@@ -17,6 +17,7 @@ from skimage.morphology import extrema
 from skimage.exposure import histogram
 from cantor import *
 from sample_signals import *
+#from numpy import unravel_index
 #from skimage.filter import edges
 
 clouds = io.imread('clouds.png')
@@ -29,12 +30,33 @@ i6 = io.imread('cell_images/cell_images/0001.006.png')
 
 img_arr=[i0, i1, i2, i4, i5, i6]
 
+## plot ideal
+#img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
+#p_filt, ORIG_FILT, P, F, G = gen_corr_filt(i0, i1, FILT)
+#print_gen_corr(i0, i1, p_filt, FILT, P, F, G )
+#max_index = np.unravel_index(p_filt.argmax(), p_filt.shape)
+#min_index = np.unravel_index(p_filt.argmin(), p_filt.shape)
+#
+#
+#code.interact(local=locals())  
 
 for ii in range(0, len(img_arr)):  
   # plot ideal
   img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
   p_filt, ORIG_FILT, P, F, G = gen_corr_filt(i0, img_arr[ii], FILT)
   print_gen_corr(i0, img_arr[ii], p_filt, FILT, P, F, G )
+  print('index: ', ii)
+  max_index = np.unravel_index(p_filt.argmax(), p_filt.shape)
+  print('max_index: ', max_index)
+  min_index = np.unravel_index(p_filt.argmin(), p_filt.shape)
+  print('min_index: ', min_index)
+  print('Max val: ', p_filt.argmax(), '     Min val: ', p_filt.argmin())
+  print('Delta: ', p_filt.argmax()-p_filt.argmin())
+  hst, edges = np.histogram(p_filt, bins=256)
+  plt.plot(edges, hst)
+  
+  
 
+  
 
   

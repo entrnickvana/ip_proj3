@@ -172,6 +172,10 @@ def three_d(img):
     ax = plt.axes(projection='3d')
     zline = linspace(0,255)
 
+#def centroid(x, y, kern_w):
+#    x_st = x-kern_w
+    
+    
 def delta1(dim):
     #len1 = np.shape(img)[0]
     len1 = dim
