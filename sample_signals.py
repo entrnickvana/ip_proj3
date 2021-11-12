@@ -91,6 +91,16 @@ def gs2(muu, sg, w, h):
     gauss1 = np.exp(-1*((z-muu)**2 / (2.0 * sg**2)))
     return gauss1
 
+def trim(img):
+    x_len, y_len = image.shape
+    
+    if (x_len % 2) == 0:
+        img = img[:-1, :]
+    if (y_len % 2) == 0:
+        img = img[:, :-1]
+        
+    return img
+
 #def lo_pass_gauss(img, muu, sg, w, h):
 #    #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
 #    #match fourier tranforms of images
@@ -102,10 +112,10 @@ def gs2(muu, sg, w, h):
 def lo_pass_gauss(img, muu, sg):
     #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
     #match fourier tranforms of images
-    FILT = fftpack.ifftshift(gs2(muu, sg, np.shape(img)[0], np.shape(img)[1]))
+    FILT = fftpack.fftshift(gs2(muu, sg, np.shape(img)[0], np.shape(img)[1]))
     I = np.fft.fft2(img)
     IMG_FILT = I*FILT
-    img_filt = np.real(np.fft.ifft2(IMG_FILT))
+    img_filt = np.abs(np.fft.ifft2(IMG_FILT))
     return img_filt, FILT, I, IMG_FILT
 
 def gen_corr(a, b):
@@ -119,7 +129,8 @@ def gen_corr(a, b):
 
 def gen_corr_filt(a, b, filt):
     P, F, G = gen_corr(a, b)
-    p_filt = np.real(np.fft.ifft2(P*filt))
+    #p_filt = np.fft.ifft2(P*filt)
+    p_filt = fftpack.fftshift(np.abs(np.fft.ifft2(P*filt)))    
     return p_filt, filt, P, F, G
 
 def print_gen_corr(img1, img2, p_filt, filt, P, F, G):
@@ -151,6 +162,42 @@ def print_gen_corr(img1, img2, p_filt, filt, P, F, G):
     plt.title('G spectrum (Log)')
     plt.imshow(np.log(np.abs(G)), cmap='gray')
     plt.show()
+
+def print_gen_corr_hist(img1, img2, p_filt, filt, P, F, G, hist):
+    plt.subplot(2,4,1)
+    plt.title('img1')
+    plt.imshow(img1, cmap='gray')
+    
+    plt.subplot(2,4,2)
+    plt.title('img2')
+    plt.imshow(img2, cmap='gray')
+    
+    plt.subplot(2,4,3)
+    plt.title('filtered_corr')
+    plt.imshow(p_filt, cmap='gray')
+    
+    plt.subplot(2,4,4)
+    plt.title('filter (shifted)')
+    plt.imshow(fftpack.ifftshift(filt), cmap='gray')
+    
+    plt.subplot(2,4,5)
+    plt.title('Phase Correlation')
+    plt.imshow(np.real(P), cmap='gray')
+    
+    plt.subplot(2,4,6)
+    plt.title('F spectrum (Log)')
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(F))), cmap='gray')    
+    
+    plt.subplot(2,4,7)
+    plt.title('G spectrum (Log)')
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(G))), cmap='gray')
+
+    plt.subplot(2,4,8)
+    plt.title('Histogram')
+    plt.plot(hist)
+    
+    plt.show()
+    
     
 
 def lo_pass_(img, muu, sg, w, h):

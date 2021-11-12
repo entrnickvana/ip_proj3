@@ -28,32 +28,93 @@ i4 = io.imread('cell_images/cell_images/0001.004.png')
 i5 = io.imread('cell_images/cell_images/0001.005.png')
 i6 = io.imread('cell_images/cell_images/0001.006.png')
 
-img_arr=[i0, i1, i2, i4, i5, i6]
+imgs = [i0, i1, i2, i4, i5, i6]
 
-## plot ideal
-#img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
-#p_filt, ORIG_FILT, P, F, G = gen_corr_filt(i0, i1, FILT)
-#print_gen_corr(i0, i1, p_filt, FILT, P, F, G )
-#max_index = np.unravel_index(p_filt.argmax(), p_filt.shape)
-#min_index = np.unravel_index(p_filt.argmin(), p_filt.shape)
-#
-#
-#code.interact(local=locals())  
+for ii in range(0, len(imgs)):
+    for jj in range(0, len(imgs)):
 
-for ii in range(0, len(img_arr)):  
-  # plot ideal
-  img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
-  p_filt, ORIG_FILT, P, F, G = gen_corr_filt(i0, img_arr[ii], FILT)
-  print_gen_corr(i0, img_arr[ii], p_filt, FILT, P, F, G )
-  print('index: ', ii)
-  max_index = np.unravel_index(p_filt.argmax(), p_filt.shape)
-  print('max_index: ', max_index)
-  min_index = np.unravel_index(p_filt.argmin(), p_filt.shape)
-  print('min_index: ', min_index)
-  print('Max val: ', p_filt.argmax(), '     Min val: ', p_filt.argmin())
-  print('Delta: ', p_filt.argmax()-p_filt.argmin())
-  hst, edges = np.histogram(p_filt, bins=256)
-  plt.plot(edges, hst)
+      # Generate gaussian filter 'FILT'
+      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
+
+      # Calculate Phase Correlation and Filter Phase correlation in Freq Dom.
+      p_filt, ORIG_FILT, P, F, G = gen_corr_filt(imgs[ii], imgs[jj], FILT)
+
+      # Print debug info like max, min, difference
+      print('IMG 1 index: ', ii)
+      print('IMG 2 index: ', jj)
+
+      # Get max/min indices
+      max_index = np.unravel_index(p_filt.argmax(), p_filt.shape)
+      min_index = np.unravel_index(p_filt.argmin(), p_filt.shape)
+      print('max_index: ', max_index)
+      print('min_index: ', min_index)
+
+      # Get max/min values
+      pmax = p_filt[max_index[0], max_index[1]]
+      pmin = p_filt[min_index[0], min_index[1]]
+      delta = pmax-pmin
+      print('Max val: ', pmax, '     Min val: ', pmin)
+      print('Delta: ', delta)
+
+      # Get statistics for potential thresholding
+      pmean = np.mean(p_filt)
+      pvar = np.var(p_filt)
+      print('Mean: ', pmean)
+      print('Var: ', pvar)
+
+      # Create a histogram for thresholding if necassry
+      flat = np.ndarray.flatten(p_filt)
+      hist, edges = np.histogram(img_as_float(flat), bins=512)
+      print_gen_corr_hist(imgs[ii], imgs[jj], p_filt, FILT, P, F, G , hist)
+
+      # Determine if correlated
+
+      # Create 3 x 3 canvas with image 1 in center
+      canvas = np.zeros((3*imgs[ii].shape[0], 3*imgs[ii].shape[1]))
+
+      # dim of pfilt
+      y1_len = imgs[ii].shape[0]
+      x1_len = imgs[ii].shape[1]
+      
+      y2_len = imgs[jj].shape[0]
+      x2_len = imgs[jj].shape[1]
+
+      # Center of canvas and top left corner of canvas
+      cy_ctr = np.int(canvas.shape[0]/2)
+      cx_ctr = np.int(canvas.shape[1]/2)
+      
+      # Image 1 corner/origin
+      y1_orig = cy_ctr - np.int(y1_len/2)
+      x1_orig = cx_ctr - np.int(x1_len/2)
+
+      y2_ctr = max_index[0] + y1_orig
+      x2_ctr = max_index[1] + x1_orig
+      
+      delta_y = y2_ctr + cy_ctr 
+      delta_x = x2_ctr + cx_ctr
+      #code.interact(local=locals())      
+
+      y2_orig = y1_orig + delta_y
+      x2_orig = x1_orig + delta_x
+
+      # Insert image1 in canvas
+      canvas[y1_len:2*y1_len, x1_len:2*x1_len] = imgs[ii]
+      c1 = np.array(canvas)
+      c1[y2_orig:y2_orig + 510, x2_orig:x2_orig + 510] = imgs[jj]
+      plt.subplot(1,2,1)
+      plt.imshow(canvas, cmap='gray')
+      plt.subplot(1,2,2)
+      plt.imshow(c1, cmap='gray')
+      plt.show()
+      code.interact(local=locals())      
+
+
+               
+
+      
+
+      
+
   
   
 
