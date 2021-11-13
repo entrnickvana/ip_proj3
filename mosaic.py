@@ -30,14 +30,42 @@ i6 = io.imread('cell_images/cell_images/0001.006.png')
 
 imgs = [i0, i1, i2, i4, i5, i6]
 
+#i00 = np.random.random((3*i0.shape[0], 3*i0.shape[1]))*(100)
+#i00 = i00.astype(int)
+#i11 = np.random.random((3*i1.shape[0], 3*i1.shape[1]))*(100)
+#i11 = i11.astype(int)
+#
+#i00[i0.shape[0]:2*i0.shape[0], i0.shape[1]:2*i0.shape[1]] = i0
+#i11[i1.shape[0]:2*i1.shape[0], i1.shape[1]:2*i1.shape[1]] = i1
+#img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i00, 0, .2)
+#p_filt, ORIG_FILT, P, F, G = gen_corr_filt(i00, i11, FILT)
+##print_gen_corr_hist(imgs[ii], imgs[jj], p_filt, FILT, P, F, G , hist)
+#
+#plt.imshow(p_filt, cmap='gray')
+#plt.show()
+#exit()
+
 for ii in range(0, len(imgs)):
     for jj in range(0, len(imgs)):
 
+      ii_ylen = imgs[ii].shape[0]
+      ii_xlen = imgs[ii].shape[1]      
+      jj_ylen = imgs[jj].shape[0]
+      jj_xlen = imgs[jj].shape[1]      
+        
+      #Pad with random noise
+      f = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
+      g = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
+      f[ii_ylen:2*ii_ylen, ii_xlen:2*ii_xlen] = imgs[ii]
+      g[jj_ylen:2*jj_ylen, jj_xlen:2*jj_xlen] = imgs[jj]      
+
+      #code.interact(local=locals())
+
       # Generate gaussian filter 'FILT'
-      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(i0, 0, .2)
+      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .2)
 
       # Calculate Phase Correlation and Filter Phase correlation in Freq Dom.
-      p_filt, ORIG_FILT, P, F, G = gen_corr_filt(imgs[ii], imgs[jj], FILT)
+      p_filt, ORIG_FILT, P, F, G = gen_corr_filt(f, g, FILT)
 
       # Print debug info like max, min, difference
       print('IMG 1 index: ', ii)
@@ -45,7 +73,14 @@ for ii in range(0, len(imgs)):
 
       # Get max/min indices
       max_index = np.unravel_index(p_filt.argmax(), p_filt.shape)
+      print('Orig Max index: ', max_index)      
       min_index = np.unravel_index(p_filt.argmin(), p_filt.shape)
+      max_index = (np.int(max_index[0]/3),np.int(max_index[1]/3))
+      print('Modified Max index: ', max_index)
+
+      if(max_index[0]> 510 or max_index[1] > 510):
+          print("Continuing to next loop ii: ", ii, "  jj: ", jj)
+          continue
       print('max_index: ', max_index)
       print('min_index: ', min_index)
 
@@ -67,46 +102,70 @@ for ii in range(0, len(imgs)):
       hist, edges = np.histogram(img_as_float(flat), bins=512)
       print_gen_corr_hist(imgs[ii], imgs[jj], p_filt, FILT, P, F, G , hist)
 
-      # Determine if correlated
 
-      # Create 3 x 3 canvas with image 1 in center
-      canvas = np.zeros((3*imgs[ii].shape[0], 3*imgs[ii].shape[1]))
+      # Loop over each quadrant
+      q1_y_orig = ii_ylen + max_index[0] - imgs[ii].shape[0]
+      q1_x_orig = ii_xlen + max_index[1] - imgs[ii].shape[1]
 
-      # dim of pfilt
-      y1_len = imgs[ii].shape[0]
-      x1_len = imgs[ii].shape[1]
+      q2_y_orig = ii_ylen + max_index[0] 
+      q2_x_orig = ii_xlen + max_index[1] - imgs[ii].shape[1]
       
-      y2_len = imgs[jj].shape[0]
-      x2_len = imgs[jj].shape[1]
-
-      # Center of canvas and top left corner of canvas
-      cy_ctr = np.int(canvas.shape[0]/2)
-      cx_ctr = np.int(canvas.shape[1]/2)
+      q3_y_orig = ii_ylen + max_index[0]
+      q3_x_orig = ii_xlen + max_index[1]
       
-      # Image 1 corner/origin
-      y1_orig = cy_ctr - np.int(y1_len/2)
-      x1_orig = cx_ctr - np.int(x1_len/2)
+      q4_y_orig = ii_ylen + max_index[0] - imgs[ii].shape[0]
+      q4_x_orig = ii_xlen + max_index[1]
 
-      y2_ctr = max_index[0] + y1_orig
-      x2_ctr = max_index[1] + x1_orig
+      # Place image 2 in 4 quadrants in canvas using correlation point
+      q1 = np.array(f)
+      q1[q1_y_orig:q1_y_orig + ii_ylen, q1_x_orig:q1_x_orig + ii_xlen] = imgs[jj]
+
+      q2 = np.array(f)
+      q2[q2_y_orig:q2_y_orig + ii_ylen, q2_x_orig:q2_x_orig + ii_xlen] = imgs[jj]
+
+      q3 = np.array(f)
+      q3[q3_y_orig:q3_y_orig + ii_ylen, q3_x_orig:q3_x_orig + ii_xlen] = imgs[jj]
+
+      q4 = np.array(f)
+      q4[q4_y_orig:q4_y_orig + ii_ylen, q4_x_orig:q4_x_orig + ii_xlen] = imgs[jj]
+
+      plt.figure(1)
+      plt.subplot(2,2,1)
+      plt.title('q1')
+      plt.imshow(q1, cmap='gray')
+      plt.subplot(2,2,2)
+      plt.title('q4')      
+      plt.imshow(q4, cmap='gray')      
+      plt.subplot(2,2,3)
+      plt.title('q2')            
+      plt.imshow(q2, cmap='gray')            
+      plt.subplot(2,2,4)
+      plt.title('q3')                  
+      plt.imshow(q3, cmap='gray')
       
-      delta_y = y2_ctr + cy_ctr 
-      delta_x = x2_ctr + cx_ctr
-      #code.interact(local=locals())      
-
-      y2_orig = y1_orig + delta_y
-      x2_orig = x1_orig + delta_x
-
-      # Insert image1 in canvas
-      canvas[y1_len:2*y1_len, x1_len:2*x1_len] = imgs[ii]
-      c1 = np.array(canvas)
-      c1[y2_orig:y2_orig + 510, x2_orig:x2_orig + 510] = imgs[jj]
+      plt.figure(2)
       plt.subplot(1,2,1)
-      plt.imshow(canvas, cmap='gray')
+      plt.imshow(imgs[ii], cmap='gray')
       plt.subplot(1,2,2)
-      plt.imshow(c1, cmap='gray')
+      plt.imshow(imgs[jj], cmap='gray')
       plt.show()
+
       code.interact(local=locals())      
+
+
+
+
+
+      
+
+      
+      
+
+
+      
+      
+
+
 
 
                

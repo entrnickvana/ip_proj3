@@ -101,6 +101,7 @@ def trim(img):
         
     return img
 
+
 #def lo_pass_gauss(img, muu, sg, w, h):
 #    #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
 #    #match fourier tranforms of images
@@ -129,8 +130,8 @@ def gen_corr(a, b):
 
 def gen_corr_filt(a, b, filt):
     P, F, G = gen_corr(a, b)
-    #p_filt = np.fft.ifft2(P*filt)
-    p_filt = fftpack.fftshift(np.abs(np.fft.ifft2(P*filt)))    
+    p_filt = np.abs(np.fft.ifft2(P*filt))
+    #p_filt = fftpack.fftshift(np.abs(np.fft.ifft2(P*filt)))    
     return p_filt, filt, P, F, G
 
 def print_gen_corr(img1, img2, p_filt, filt, P, F, G):
