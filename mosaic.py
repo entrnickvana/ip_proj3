@@ -7,6 +7,8 @@ from scipy import fftpack
 # Here is the link to the article I read, also see pwr_exp.py for what is done in the article
 # https://bertvandenbroucke.netlify.app/2019/05/24/computing-a-power-spectrum-in-python/
 
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 #from ip_functions import *
@@ -19,6 +21,15 @@ from cantor import *
 from sample_signals import *
 #from numpy import unravel_index
 #from skimage.filter import edges
+
+
+# TODO
+# 1) Thresholding on correlation values
+# 2) Variable image size correction
+# 3) 
+#
+#
+#
 
 clouds = io.imread('clouds.png')
 i0 = io.imread('cell_images/cell_images/0001.000.png')
@@ -63,7 +74,7 @@ for ii in range(0, len(imgs)):
       #code.interact(local=locals())
 
       # Generate gaussian filter 'FILT'
-      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .2)
+      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .5)
 
       # Calculate Phase Correlation and Filter Phase correlation in Freq Dom.
       p_filt, ORIG_FILT, P, F, G = gen_corr_filt(f, g, FILT)
@@ -103,7 +114,6 @@ for ii in range(0, len(imgs)):
       hist, edges = np.histogram(img_as_float(flat), bins=512)
       print_gen_corr_hist(imgs[ii], imgs[jj], p_filt, FILT, P, F, G , hist)
 
-
       # Loop over each quadrant
       q1_y_orig = ii_ylen + max_index[0] - imgs[ii].shape[0]
       q1_x_orig = ii_xlen + max_index[1] - imgs[ii].shape[1]
@@ -117,28 +127,50 @@ for ii in range(0, len(imgs)):
       q4_y_orig = ii_ylen + max_index[0] - imgs[ii].shape[0]
       q4_x_orig = ii_xlen + max_index[1]
 
+      if(max_index[0] == 0 or max_index[0] == 0):
+          continue
+      
       # Place image 2 in 4 quadrants in canvas using correlation point
       q1 = np.array(f)
       q1[q1_y_orig:q1_y_orig + ii_ylen, q1_x_orig:q1_x_orig + ii_xlen] = imgs[jj]
       s1_f = imgs[ii][0:max_index[0], 0:max_index[1]]
       s1_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen, jj_xlen-max_index[1]:jj_xlen]
+      q1_corr = gen_corr_no_filt(s1_f, s1_g)
+      code.interact(local=locals())      
+      q1_corr_val = np.unravel_index(q1_corr.argmax(), q1_corr.shape)      
+      print('q2 corr: ', q2_corr_val)      
 
       q2 = np.array(f)
       q2[q2_y_orig:q2_y_orig + ii_ylen, q2_x_orig:q2_x_orig + ii_xlen] = imgs[jj]
-      s2_f = imgs[ii][max_index[0]:ii_ylen-max_index[0], 0:max_index[1]]
-      s2_g = imgs[jj][0:max_index[0], jj_xlen-max_index[1]:jj_xlen]
-
+      s2_f = imgs[ii][max_index[0]:ii_ylen, 0:max_index[1]]
+      s2_g = imgs[jj][0:jj_ylen-max_index[0], jj_xlen-max_index[1]:jj_xlen ]
+      q2_corr = gen_corr_no_filt(s2_f, s2_g)
+      code.interact(local=locals())
+      q2_corr_val = np.unravel_index(q2_corr.argmax(), q2_corr.shape)            
+      print('q2 corr: ', q2_corr_val)      
+      
       q3 = np.array(f)
       q3[q3_y_orig:q3_y_orig + ii_ylen, q3_x_orig:q3_x_orig + ii_xlen] = imgs[jj]
-      s3_f = imgs[ii][max_index[0]:ii_ylen-max_index[0], max_index[1]:ii_xlen-max_index[1]]
-      s3_g = imgs[jj][0:jj_ylen-max_index[0], 0:jj_xlen-max_index[1]]
-
+      s3_f = imgs[ii][max_index[0]:ii_ylen, max_index[1]:ii_xlen]
+      s3_g = imgs[jj][0:jj_ylen-max_index[0] , 0:jj_xlen-max_index[1]]
+      q3_corr = gen_corr_no_filt(s3_f, s3_g)
+      q3_corr_val = np.unravel_index(q3_corr.argmax(), q3_corr.shape)                  
+      print('q3 corr: ', q3_corr_val)            
+ 
       q4 = np.array(f)
       q4[q4_y_orig:q4_y_orig + ii_ylen, q4_x_orig:q4_x_orig + ii_xlen] = imgs[jj]
-      s4_f = imgs[ii][0:max_index[0], max_index[1]:ii_xlen-max_index[1]]
-      s4_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen,0:jj_xlen-max_index[1]]
-      
+      s4_f = imgs[ii][0:max_index[0], max_index[1]:ii_xlen]
+      s4_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen, 0: max_index[1]-jj_xlen]
+      q4_corr = gen_corr_no_filt(s4_f, s4_g)
+      q4_corr_val = np.unravel_index(q4_corr.argmax(), q4_corr.shape)                        
+      print('q4 corr: ', q4_corr_val)
 
+      corr_arr = [q1_corr_val, q2_corr_val, q3_corr_val, q4_corr_val]
+      max_corr = max(corr_arr)
+      max_corr_idx = corr_arr.index(max_corr)
+
+      print('corr idx: ', max_corr_idx, '  max val: ', max_corr)
+      
       plt.figure(1)
       plt.subplot(2,2,1)
       plt.title('q1')

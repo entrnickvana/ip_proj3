@@ -128,6 +128,13 @@ def gen_corr(a, b):
     P = numer/denom
     return P, F, G
 
+def gen_corr_no_filt(a, b):
+    P, F, G = gen_corr(a, b)
+    p_unfilt = np.abs(np.fft.ifft2(P))
+    #p_filt = fftpack.fftshift(np.abs(np.fft.ifft2(P*filt)))    
+    return p_unfilt, P, F, G
+
+
 def gen_corr_filt(a, b, filt):
     P, F, G = gen_corr(a, b)
     p_filt = np.abs(np.fft.ifft2(P*filt))
