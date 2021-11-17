@@ -45,6 +45,7 @@ imgs = [i0, i1, i2, i4, i5, i6]
 #plt.show()
 #exit()
 
+##mosiac = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
 for ii in range(0, len(imgs)):
     for jj in range(0, len(imgs)):
 
@@ -119,15 +120,24 @@ for ii in range(0, len(imgs)):
       # Place image 2 in 4 quadrants in canvas using correlation point
       q1 = np.array(f)
       q1[q1_y_orig:q1_y_orig + ii_ylen, q1_x_orig:q1_x_orig + ii_xlen] = imgs[jj]
+      s1_f = imgs[ii][0:max_index[0], 0:max_index[1]]
+      s1_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen, jj_xlen-max_index[1]:jj_xlen]
 
       q2 = np.array(f)
       q2[q2_y_orig:q2_y_orig + ii_ylen, q2_x_orig:q2_x_orig + ii_xlen] = imgs[jj]
+      s2_f = imgs[ii][max_index[0]:ii_ylen-max_index[0], 0:max_index[1]]
+      s2_g = imgs[jj][0:max_index[0], jj_xlen-max_index[1]:jj_xlen]
 
       q3 = np.array(f)
       q3[q3_y_orig:q3_y_orig + ii_ylen, q3_x_orig:q3_x_orig + ii_xlen] = imgs[jj]
+      s3_f = imgs[ii][max_index[0]:ii_ylen-max_index[0], max_index[1]:ii_xlen-max_index[1]]
+      s3_g = imgs[jj][0:jj_ylen-max_index[0], 0:jj_xlen-max_index[1]]
 
       q4 = np.array(f)
       q4[q4_y_orig:q4_y_orig + ii_ylen, q4_x_orig:q4_x_orig + ii_xlen] = imgs[jj]
+      s4_f = imgs[ii][0:max_index[0], max_index[1]:ii_xlen-max_index[1]]
+      s4_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen,0:jj_xlen-max_index[1]]
+      
 
       plt.figure(1)
       plt.subplot(2,2,1)
@@ -148,8 +158,41 @@ for ii in range(0, len(imgs)):
       plt.imshow(imgs[ii], cmap='gray')
       plt.subplot(1,2,2)
       plt.imshow(imgs[jj], cmap='gray')
-      plt.show()
 
+      plt.figure(3)
+      plt.subplot(1, 3, 1)
+      plt.imshow(q1, cmap='gray')
+      plt.subplot(1, 3, 2)
+      plt.imshow(s1_f, cmap='gray')
+      plt.subplot(1, 3, 3)      
+      plt.imshow(s1_g, cmap='gray')
+
+      plt.figure(4)
+      plt.subplot(1, 3, 1)
+      plt.imshow(q2, cmap='gray')
+      plt.subplot(1, 3, 2)
+      plt.imshow(s2_f, cmap='gray')
+      plt.subplot(1, 3, 3)      
+      plt.imshow(s2_g, cmap='gray')
+
+      plt.figure(5)
+      plt.subplot(1, 3, 1)
+      plt.imshow(q3, cmap='gray')
+      plt.subplot(1, 3, 2)
+      plt.imshow(s3_f, cmap='gray')
+      plt.subplot(1, 3, 3)      
+      plt.imshow(s3_g, cmap='gray')
+      
+      plt.figure(6)
+      plt.subplot(1, 3, 1)
+      plt.imshow(q4, cmap='gray')
+      plt.subplot(1, 3, 2)
+      plt.imshow(s4_f, cmap='gray')
+      plt.subplot(1, 3, 3)      
+      plt.imshow(s4_g, cmap='gray')
+
+      plt.show()
+      
       code.interact(local=locals())      
 
 
