@@ -14,6 +14,22 @@ from skimage.exposure import histogram
 from numpy.fft import fft2, ifft2
 from scipy import fftpack
 
+def quad_corr(imgs, ff, gg, quad_num):
+
+    if(quad_num == 1):
+        q1_f = imgs[ff][dy:dy+imgs[ff].shape[0], dx:dx+imgs[ff].shape[1]]
+        q1_g = imgs[gg][0:imgs[gg].shape[0]-dy, 0:imgs[gg]-dx]
+    if(quad_num == 2):
+        q2_f = imgs[ff][0:dy, dx:imgs[ff].shape[1]]
+        q2_g = imgs[gg][imgs[gg].shape[0]-dy:imgs[gg].shape[0], 0:imgs[gg].shape[1]-dx]
+    if(quad_num == 3):
+        q3_f = imgs[ff][0:dy,0:dx]
+        q3_g = imgs[gg][imgs[gg].shape[0]-dy:imgs[gg].shape[0], imgs[gg].shape[1]-dx:imgs[gg].shape[1]]
+        
+    if(quad_num == 1):
+        
+        
+    
 
 def draw_bound(img):
     new_img = np.array(img)
