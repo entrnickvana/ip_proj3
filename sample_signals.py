@@ -101,6 +101,12 @@ def trim(img):
         
     return img
 
+def pad_ave(img):
+    av = np.mean(img)
+    pad_img = av*np.ones((3*img.shape[0], 3*img.shape[1]))
+    pad_img[img.shape[0]:2*img.shape[0], img.shape[1]:2*img.shape[1]] = img
+    return pad_img
+
 
 #def lo_pass_gauss(img, muu, sg, w, h):
 #    #Shift the gaussian filter as it is constructed to be in the center of X,Y, this doesn't
