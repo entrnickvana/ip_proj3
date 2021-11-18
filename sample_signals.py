@@ -126,12 +126,13 @@ def lo_pass_gauss(img, muu, sg):
     return img_filt, FILT, I, IMG_FILT
 
 def gen_corr(a, b):
+    eps = .0001
     F = np.fft.fft2(a)
     F_conj = F.conj()
     G = np.fft.fft2(b)
     numer = F_conj*G
     denom = np.abs(numer)
-    P = numer/denom
+    P = np.where((denom > eps), numer / denom, 0)
     return P, F, G
 
 def gen_corr_no_filt(a, b):

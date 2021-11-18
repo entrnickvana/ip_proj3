@@ -32,12 +32,23 @@ from sample_signals import *
 #
 
 
+c1 = lo_pass_gauss(np.zeros((256, 256)), 0, .2)
+c1 = np.real(fftpack.fftshift(c1[1]))
+c1[c1 >= 0.5] = .5
+c1[c1 < 0.5] = 0
+c1 = -1*c1
+plt.imshow(c1, cmap='gray')
+plt.show()
+
 vect = np.arange(0, 256**2)
 vect = (1/np.max(vect))*vect
 steps1 = vect.reshape((256, 256))
 steps1[0:16, 0:32] = 1
 steps1[128-16: 128 + 16, 0:128+64] = .5
 steps1[32:256-32, 256-16:256-8] = .25
+
+steps1 = np.array(c1)
+
 s1 = steps1[0:128+64, 0:128+64]
 s2 = steps1[64:256, 0:128+64]
 s3 = steps1[64:256, 64:564]
@@ -51,11 +62,11 @@ plt.imshow(steps1, cmap='gray')
 ax1 = fig.add_subplot(gs[0, 2])
 plt.imshow(s1, cmap='gray')
 ax2 = fig.add_subplot(gs[1, 2])
-plt.imshow(s2, cmap='gray')
+plt.imshow(s4, cmap='gray')
 ax4 = fig.add_subplot(gs[0, 3])
 plt.imshow(s3, cmap='gray')
 ax5 = fig.add_subplot(gs[1, 3])
-plt.imshow(s4, cmap='gray')
+plt.imshow(s2, cmap='gray')
 plt.show()
 
 pad_s1 = pad_ave(s1)
@@ -91,6 +102,7 @@ imgs = [s1, s2, s3, s4]
 #plt.imshow(p_filt, cmap='gray')
 #plt.show()
 #exit()
+code.interact(local=locals())
 
 ##mosiac = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
 for ii in range(0, len(imgs)):
@@ -102,15 +114,17 @@ for ii in range(0, len(imgs)):
       jj_xlen = imgs[jj].shape[1]      
         
       #Pad with random noise
-      f = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
-      g = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
+      #f = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
+      #g = np.random.random((3*imgs[ii].shape[0], 3*imgs[jj].shape[1]))*(100)
+      f = pad_ave(imgs[ii])
+      g = pad_ave(imgs[jj])
       f[ii_ylen:2*ii_ylen, ii_xlen:2*ii_xlen] = imgs[ii]
       g[jj_ylen:2*jj_ylen, jj_xlen:2*jj_xlen] = imgs[jj]      
 
       #code.interact(local=locals())
 
       # Generate gaussian filter 'FILT'
-      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .5)
+      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .2)
 
       # Calculate Phase Correlation and Filter Phase correlation in Freq Dom.
       p_filt, ORIG_FILT, P, F, G = gen_corr_filt(f, g, FILT)
@@ -126,9 +140,10 @@ for ii in range(0, len(imgs)):
       max_index = (np.int(max_index[0]/3),np.int(max_index[1]/3))
       print('Modified Max index: ', max_index)
 
-      if(max_index[0]> 510 or max_index[1] > 510):
+      if(max_index[0] > 510 or max_index[1] > 510):
           print("Continuing to next loop ii: ", ii, "  jj: ", jj)
           continue
+      
       print('max_index: ', max_index)
       print('min_index: ', min_index)
 
@@ -147,6 +162,7 @@ for ii in range(0, len(imgs)):
 
       # Create a histogram for thresholding if necassry
       flat = np.ndarray.flatten(p_filt)
+      #flat[flat == nan] = 0
       hist, edges = np.histogram(img_as_float(flat), bins=512)
       print_gen_corr_hist(imgs[ii], imgs[jj], p_filt, FILT, P, F, G , hist)
 
@@ -163,9 +179,6 @@ for ii in range(0, len(imgs)):
       q4_y_orig = ii_ylen + max_index[0] - imgs[ii].shape[0]
       q4_x_orig = ii_xlen + max_index[1]
 
-      if(max_index[0] == 0 or max_index[0] == 0 or max_index[1] == 0 or max_index[1] == 0):
-          continue
-      
       # Place image 2 in 4 quadrants in canvas using correlation point
       q1 = np.array(f)
       q1[q1_y_orig:q1_y_orig + ii_ylen, q1_x_orig:q1_x_orig + ii_xlen] = imgs[jj]
