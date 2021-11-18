@@ -32,11 +32,13 @@ from sample_signals import *
 #
 
 
-c1 = lo_pass_gauss(np.zeros((256, 256)), 0, .2)
+c1 = lo_pass_gauss(np.zeros((256, 256)), 0, .1)
 c1 = np.real(fftpack.fftshift(c1[1]))
-c1[c1 >= 0.5] = .5
-c1[c1 < 0.5] = 0
+c1[c1 >= 0.5] = .8
+c1[c1 < 0.8] = .2
+c1 = c1-1
 c1 = -1*c1
+
 plt.imshow(c1, cmap='gray')
 plt.show()
 
@@ -62,12 +64,14 @@ plt.imshow(steps1, cmap='gray')
 ax1 = fig.add_subplot(gs[0, 2])
 plt.imshow(s1, cmap='gray')
 ax2 = fig.add_subplot(gs[1, 2])
-plt.imshow(s4, cmap='gray')
-ax4 = fig.add_subplot(gs[0, 3])
-plt.imshow(s3, cmap='gray')
-ax5 = fig.add_subplot(gs[1, 3])
 plt.imshow(s2, cmap='gray')
+ax4 = fig.add_subplot(gs[0, 3])
+plt.imshow(s4, cmap='gray')
+ax5 = fig.add_subplot(gs[1, 3])
+plt.imshow(s3, cmap='gray')
 plt.show()
+
+code.interact(local=locals())
 
 pad_s1 = pad_ave(s1)
 pad_s4 = pad_ave(s4)
@@ -124,7 +128,7 @@ for ii in range(0, len(imgs)):
       #code.interact(local=locals())
 
       # Generate gaussian filter 'FILT'
-      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .2)
+      img_filt, FILT, I, IMG_FILT = lo_pass_gauss(f, 0, .8)
 
       # Calculate Phase Correlation and Filter Phase correlation in Freq Dom.
       p_filt, ORIG_FILT, P, F, G = gen_corr_filt(f, g, FILT)
@@ -184,48 +188,49 @@ for ii in range(0, len(imgs)):
       q1[q1_y_orig:q1_y_orig + ii_ylen, q1_x_orig:q1_x_orig + ii_xlen] = imgs[jj]
       s1_f = imgs[ii][0:max_index[0], 0:max_index[1]]
       s1_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen, jj_xlen-max_index[1]:jj_xlen]
-      q1_corr = gen_corr_no_filt(s1_f, s1_g)
-      q1_corr = q1_corr[0]
-      q1_corr_idx = np.unravel_index(q1_corr.argmax(), q1_corr.shape)
-      #code.interact(local=locals())
-      q1_corr_val = q1_corr[q1_corr_idx[0], q1_corr_idx[1]]
-      print('q2 corr: ', q1_corr_idx)      
+      #q1_corr = gen_corr_no_filt(s1_f, s1_g)
+      #q1_corr = q1_corr[0]
+      #q1_corr_idx = np.unravel_index(q1_corr.argmax(), q1_corr.shape)
+      ##code.interact(local=locals())
+      #q1_corr_val = q1_corr[q1_corr_idx[0], q1_corr_idx[1]]
+      #print('q2 corr: ', q1_corr_idx)      
 
       q2 = np.array(f)
       q2[q2_y_orig:q2_y_orig + ii_ylen, q2_x_orig:q2_x_orig + ii_xlen] = imgs[jj]
       s2_f = imgs[ii][max_index[0]:ii_ylen, 0:max_index[1]]
       s2_g = imgs[jj][0:jj_ylen-max_index[0], jj_xlen-max_index[1]:jj_xlen ]
-      q2_corr = gen_corr_no_filt(s2_f, s2_g)
-      q2_corr = q2_corr[0]      
-      q2_corr_idx = np.unravel_index(q2_corr.argmax(), q2_corr.shape)
-      q2_corr_val = q2_corr[q2_corr_idx[0], q2_corr_idx[1]]      
-      print('q2 corr: ', q2_corr_idx)      
+      #q2_corr = gen_corr_no_filt(s2_f, s2_g)
+      #q2_corr = q2_corr[0]      
+      #q2_corr_idx = np.unravel_index(q2_corr.argmax(), q2_corr.shape)
+      #q2_corr_val = q2_corr[q2_corr_idx[0], q2_corr_idx[1]]      
+      #print('q2 corr: ', q2_corr_idx)      
       
       q3 = np.array(f)
       q3[q3_y_orig:q3_y_orig + ii_ylen, q3_x_orig:q3_x_orig + ii_xlen] = imgs[jj]
       s3_f = imgs[ii][max_index[0]:ii_ylen, max_index[1]:ii_xlen]
       s3_g = imgs[jj][0:jj_ylen-max_index[0] , 0:jj_xlen-max_index[1]]
-      q3_corr = gen_corr_no_filt(s3_f, s3_g)
-      q3_corr = q3_corr[0 ]     
-      q3_corr_idx = np.unravel_index(q3_corr.argmax(), q3_corr.shape)
-      q3_corr_val = q3_corr[q3_corr_idx[0], q3_corr_idx[1]]            
-      print('q3 corr: ', q3_corr_idx)            
+      #q3_corr = gen_corr_no_filt(s3_f, s3_g)
+      #q3_corr = q3_corr[0 ]     
+      #q3_corr_idx = np.unravel_index(q3_corr.argmax(), q3_corr.shape)
+      #q3_corr_val = q3_corr[q3_corr_idx[0], q3_corr_idx[1]]            
+      #print('q3 corr: ', q3_corr_idx)            
  
       q4 = np.array(f)
       q4[q4_y_orig:q4_y_orig + ii_ylen, q4_x_orig:q4_x_orig + ii_xlen] = imgs[jj]
       s4_f = imgs[ii][0:max_index[0], max_index[1]:ii_xlen]
       s4_g = imgs[jj][jj_ylen-max_index[0]:jj_ylen, 0: max_index[1]-jj_xlen]
-      q4_corr = gen_corr_no_filt(s4_f, s4_g)
-      q4_corr = q4_corr[0]      
-      q4_corr_idx = np.unravel_index(q4_corr.argmax(), q4_corr.shape)
-      q4_corr_val = q4_corr[q4_corr_idx[0], q4_corr_idx[1]]                  
-      print('q4 corr: ', q4_corr_idx)
+      #q4_corr = gen_corr_no_filt(s4_f, s4_g)
+      #q4_corr = q4_corr[0]      
+      #q4_corr_idx = np.unravel_index(q4_corr.argmax(), q4_corr.shape)
+      #q4_corr_val = q4_corr[q4_corr_idx[0], q4_corr_idx[1]]                  
+      #print('q4 corr: ', q4_corr_idx)
 
-      corr_arr = [q1_corr_val, q2_corr_val, q3_corr_val, q4_corr_val]
-      max_corr = max(corr_arr)
-      max_corr_idx = corr_arr.index(max_corr)
-
-      print('corr idx: ', max_corr_idx, '  max val: ', max_corr)
+      #corr_arr = [q1_corr_val, q2_corr_val, q3_corr_val, q4_corr_val]
+      #max_corr = max(corr_arr)
+      #max_corr_idx = corr_arr.index(max_corr)
+      #
+      #print('corr idx: ', max_corr_idx, '  max val: ', max_corr)
+      
       plt.figure(1)
       plt.subplot(2,2,1)
       plt.title('q1')
