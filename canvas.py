@@ -98,16 +98,36 @@ for ff in range(0, len(imgs)):
         #quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] = quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] + bound
         quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] = bound
 
-        # Quadrant 1
-        #q1_f = imgs[ff][dy:dy+imgs[ff].shape[0], dx:dx+imgs[ff].shape[1]]
-        #q1_g = imgs[gg][0:imgs[gg].shape[0]-dy, 0:imgs[gg]-dx]
+        if(dy == 0 and dx == 0):
+          print('SAME IMAGE\n\n\n')
+          continue
+        
+        for ii in range(1, 5):
+            f_quad, g_quad = quad_corr(imgs[ff], imgs[gg], dy, dx, ii)
+            print('f', ii, ' shape: ', f_quad.shape)
+            print('g', ii, ' shape: ', g_quad.shape)            
+            plt.subplot(1,3,1)
+            plt.imshow(quad_comp, cmap='gray')
+            plt.subplot(1,3,2)
+            plt.imshow(g_quad, cmap='gray')
+            plt.subplot(1,3,3)
+            plt.imshow(f_quad, cmap='gray')
+            
+            plt.show()
+            code.interact(local=locals())            
+            
 
+        ## Quadrant 1
+        #q1_f = imgs[ff][dy:dy+imgs[ff].shape[0], dx:dx+imgs[ff].shape[1]]
+        #q1_g = imgs[gg][0:imgs[gg].shape[0]-dy, 0:imgs[gg].shape[1]-dx]
+        #
+        #
         #q2_f = imgs[ff][0:dy, dx:imgs[ff].shape[1]]
         #q2_g = imgs[gg][imgs[gg].shape[0]-dy:imgs[gg].shape[0], 0:imgs[gg].shape[1]-dx]
-
+        #
         #q3_f = imgs[ff][0:dy,0:dx]
         #q3_g = imgs[gg][imgs[gg].shape[0]-dy:imgs[gg].shape[0], imgs[gg].shape[1]-dx:imgs[gg].shape[1]]
-
+        #
         #q4_f = imgs[ff][dy:imgs[ff].shape[0], 0:dx]
         #q4_g = imgs[gg][0:imgs[gg].shape[0]-dy, imgs[gg].shape[1]-dx:imgs[gg].shape[1]]
 
@@ -115,7 +135,6 @@ for ff in range(0, len(imgs)):
         plt.show()        
         
         code.interact(local=locals())
-
 
         
 

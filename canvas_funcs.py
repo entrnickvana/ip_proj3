@@ -14,22 +14,30 @@ from skimage.exposure import histogram
 from numpy.fft import fft2, ifft2
 from scipy import fftpack
 
-def quad_corr(imgs, ff, gg, quad_num):
+def quad_corr(ff, gg, dy, dx, quad_num):
 
     if(quad_num == 1):
-        q1_f = imgs[ff][dy:dy+imgs[ff].shape[0], dx:dx+imgs[ff].shape[1]]
-        q1_g = imgs[gg][0:imgs[gg].shape[0]-dy, 0:imgs[gg]-dx]
+        q1_f = ff[dy:dy+ff.shape[0], dx:dx+ff.shape[1]]
+        q1_g = gg[0:gg.shape[0]-dy, 0:gg.shape[1]-dx]
+        return q1_f, q1_g
+        
     if(quad_num == 2):
-        q2_f = imgs[ff][0:dy, dx:imgs[ff].shape[1]]
-        q2_g = imgs[gg][imgs[gg].shape[0]-dy:imgs[gg].shape[0], 0:imgs[gg].shape[1]-dx]
-    if(quad_num == 3):
-        q3_f = imgs[ff][0:dy,0:dx]
-        q3_g = imgs[gg][imgs[gg].shape[0]-dy:imgs[gg].shape[0], imgs[gg].shape[1]-dx:imgs[gg].shape[1]]
-        
-    if(quad_num == 1):
-        
-        
+        q2_f = ff[0:dy, dx:ff.shape[1]]
+        q2_g = gg[gg.shape[0]-dy:gg.shape[0], 0:gg.shape[1]-dx]
+        return q2_f, q2_g
     
+    if(quad_num == 3):
+        q3_f = ff[0:dy,0:dx]
+        q3_g = gg[gg.shape[0]-dy:gg.shape[0], gg.shape[1]-dx:gg.shape[1]]
+        return q3_f, q3_g
+        
+    if(quad_num == 4):
+        q4_f = ff[dy:ff.shape[0], 0:dx]
+        q4_g = gg[0:gg.shape[0]-dy, gg.shape[1]-dx:gg.shape[1]]
+        return q4_f, q4_g
+
+    return
+        
 
 def draw_bound(img):
     new_img = np.array(img)
