@@ -58,8 +58,19 @@ for ff in range(0, len(imgs)):
         y_ctr = np.int(pad_imgs[ff].shape[0]/2)        
         x_ctr = np.int(pad_imgs[ff].shape[1]/2)
         dy = y_ctr-y_off
-        dx = x_ctr-x_off        
-        quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] = quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] + bound
+        if(dy < 0):
+            dy = imgs[ff].shape[0] + dy
+        dx = x_ctr-x_off
+        if(dx < 0):
+            dx = imgs[ff].shape[1] + dx
+        
+        print('y offset: ', y_off)
+        print('x offset: ', x_off)
+        print('dy: ', dy)
+        print('dx: ', dx)        
+        
+        #quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] = quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] + bound
+        quad_comp[dy:dy + imgs[ff].shape[0], dx:dx + imgs[ff].shape[1]] = bound        
         plt.imshow(quad_comp, cmap='gray')
         plt.show()        
         
