@@ -15,6 +15,7 @@ from numpy.fft import fft2, ifft2
 from scipy import fftpack
 
 def mosaic_core(imgs):
+    print('Beginning Mosiac, this may take a minute...')
 
     debug = 0
     rows, cols = (len(imgs), len(imgs))
@@ -121,6 +122,9 @@ def mosaic_core(imgs):
     
                 canvas[pos_arr[gg][gg][0]:pos_arr[gg][gg][0] + imgs[gg].shape[0], pos_arr[gg][gg][1]:pos_arr[gg][gg][1] + imgs[gg].shape[1]] = imgs[gg]
     
+    plt.figure()
+    plt.imshow(canvas, cmap='gray')
+    plt.savefig('canvas.png')
 
     return canvas
 
@@ -169,10 +173,10 @@ def quad_corr_max_index(ff, gg, dy, dx):
     q4_g = gg[0:gg.shape[0]-dy, gg.shape[1]-dx:gg.shape[1]]
     corr_max_arr.append(norm_corr(q4_f, q4_g))
     
-    print('Quadrant corr values: ', corr_max_arr)
+    #print('Quadrant corr values: ', corr_max_arr)
     #code.interact(local=locals())            
     max_corr_idx = corr_max_arr.index(max(corr_max_arr))
-    print('Index selected: ', max_corr_idx)
+    #print('Index selected: ', max_corr_idx)
     return max_corr_idx + 1
 
 def norm_corr(a, b):
@@ -186,6 +190,23 @@ def norm_corr(a, b):
     n_corr = (np.sum(a_hat*b_hat))/(a_hat_mag*b_hat_mag + .0001)
     
     return n_corr
+
+def btrw(w, h, cutoff, order):
+    w_half = np.int(w/2)
+    h_half = np.int(h/2)
+    x, y = np.meshgrid(np.linspace(-1,1,w), np.linspace(-1,1,h))
+    z = np.sqrt(x*x + y*y)
+    butter = 1/(1 + (z/cutoff)**(2*order))
+    return butter
+
+def lo_pass_btrw(img, cutoff, order):
+    FILT = fftpack.ifftshift(btrw(np.shape(img)[0], np.shape(img)[1], cutoff, order))
+    I = np.fft.fft2(img)
+    IMG_FILT = I*FILT
+    img_filt = np.real(np.fft.ifft2(IMG_FILT))
+    return img_filt, FILT, I, IMG_FILT
+    #return img_filt, FILT, I, IMG_FILT
+
 
 def draw_bound(img):
     new_img = np.array(img)
@@ -226,7 +247,8 @@ def phase_corr(f, g, filt):
 def gs2(muu, sg, w, h):
     w_half = np.int(w/2)
     h_half = np.int(h/2)
-    x, y = np.meshgrid(np.linspace(-1,1,w), np.linspace(-1,1,h))
+    #x, y = np.meshgrid(np.linspace(-1,1,w), np.linspace(-1,1,h))
+    x, y = np.meshgrid(np.linspace(-1,1,h), np.linspace(-1,1,w))    
     z = np.sqrt(x*x + y*y)
     sigma = 1
     gauss1 = np.exp(-1*((z-muu)**2 / (2.0 * sg**2)))
@@ -248,6 +270,30 @@ def test_img(test_shape):
     tst = tst-1
     tst = -1*tst
     return tst
+
+def color2grey(img):
+    b = [.3, .6, .1]
+    return np.dot(img[...,:3], b)
+
+
+def plt_flt_plot(img, FILT, I, IMG_FILT, img_filt):
+    plt.subplot(2,3,1)
+    plt.title('Input Image')
+    plt.imshow(img, cmap='gray')
+    plt.subplot(2,3,2)
+    plt.title('FFT image (Magnitude Logscale)')    
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(I))), cmap='gray')
+    plt.subplot(2,3,3)
+    plt.title('Centered Filter (Magnitude Logscale)')    
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(FILT))), cmap='gray')
+    plt.subplot(2,3,4)
+    plt.title('Fourier Domain Filtered Image (Magnitude Logscale)')        
+    plt.imshow(np.log(np.abs(fftpack.ifftshift(IMG_FILT))), cmap='gray')
+    plt.subplot(2,3,5)
+    plt.title('Filtered Output Image')            
+    plt.imshow(img_filt, cmap='gray')
+    plt.show()
+
 
 def partition_imag4(img, overlap):
     half_len_y = np.int(img.shape[0]/2)
@@ -280,7 +326,7 @@ def partition_imag4_print(img, imgs):
     plt.imshow(s4, cmap='gray')
     ax5 = fig.add_subplot(gs[1, 3])
     plt.imshow(s3, cmap='gray')
-    plt.show()
+    plt.savefig('')
 
 
 
