@@ -225,7 +225,7 @@ def sect4_tests():
     # Put in array to pass to mosaic function
     cloud_imgs = [s1, s2, s3, s4]
     
-    #partition_imag4_print(clouds, cloud_imgs)
+    partition_imag4_print(clouds, cloud_imgs)
     s1.shape
     s2.shape
     s3.shape
