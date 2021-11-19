@@ -37,7 +37,44 @@ def quad_corr(ff, gg, dy, dx, quad_num):
         return q4_f, q4_g
 
     return
-        
+
+def quad_corr_max_index(ff, gg, dy, dx):
+
+    corr_max_arr = []
+    
+    q1_f = ff[dy:dy+ff.shape[0], dx:dx+ff.shape[1]]
+    q1_g = gg[0:gg.shape[0]-dy, 0:gg.shape[1]-dx]
+    corr_max_arr.append(norm_corr(q1_f, q1_g))
+    
+    q2_f = ff[0:dy, dx:ff.shape[1]]
+    q2_g = gg[gg.shape[0]-dy:gg.shape[0], 0:gg.shape[1]-dx]
+    corr_max_arr.append(norm_corr(q2_f, q2_g))    
+    
+    q3_f = ff[0:dy,0:dx]
+    q3_g = gg[gg.shape[0]-dy:gg.shape[0], gg.shape[1]-dx:gg.shape[1]]
+    corr_max_arr.append(norm_corr(q3_f, q3_g))            
+
+    q4_f = ff[dy:ff.shape[0], 0:dx]
+    q4_g = gg[0:gg.shape[0]-dy, gg.shape[1]-dx:gg.shape[1]]
+    corr_max_arr.append(norm_corr(q4_f, q4_g))
+    
+    print('Quadrant corr values: ', corr_max_arr)
+    #code.interact(local=locals())            
+    max_corr_idx = corr_max_arr.index(max(corr_max_arr))
+    print('Index selected: ', max_corr_idx)
+    return max_corr_idx + 1
+
+def norm_corr(a, b):
+    
+    a_mean = np.mean(a)
+    b_mean = np.mean(b)
+    a_hat = a-(a_mean*np.ones(a.shape))
+    b_hat = b-(b_mean*np.ones(b.shape))
+    a_hat_mag = np.sqrt(np.sum(a_hat*a_hat))
+    b_hat_mag = np.sqrt(np.sum(b_hat*b_hat))    
+    n_corr = (np.sum(a_hat*b_hat))/(a_hat_mag*b_hat_mag)
+    
+    return n_corr
 
 def draw_bound(img):
     new_img = np.array(img)
