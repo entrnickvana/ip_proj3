@@ -183,7 +183,7 @@ def norm_corr(a, b):
     b_hat = b-(b_mean*np.ones(b.shape))
     a_hat_mag = np.sqrt(np.sum(a_hat*a_hat))
     b_hat_mag = np.sqrt(np.sum(b_hat*b_hat))    
-    n_corr = (np.sum(a_hat*b_hat))/(a_hat_mag*b_hat_mag)
+    n_corr = (np.sum(a_hat*b_hat))/(a_hat_mag*b_hat_mag + .0001)
     
     return n_corr
 
