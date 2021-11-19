@@ -326,7 +326,7 @@ def partition_imag4_print(img, imgs):
     plt.imshow(s4, cmap='gray')
     ax5 = fig.add_subplot(gs[1, 3])
     plt.imshow(s3, cmap='gray')
-    plt.savefig('')
+    plt.show()
 
 
 
